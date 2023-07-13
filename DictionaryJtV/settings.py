@@ -62,6 +62,8 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+CORS_ORIGIN_ALLOW_ALL = True
+
 ROOT_URLCONF = 'DictionaryJtV.urls'
 
 TEMPLATES = [
@@ -89,7 +91,7 @@ WSGI_APPLICATION = 'DictionaryJtV.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'dictionary',
+        'NAME': 'translatejtv',
         'USER': 'root',
         'PASSWORD': '',
         'HOST': 'localhost'
