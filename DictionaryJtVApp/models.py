@@ -12,24 +12,27 @@ class Paragraph(models.Model):
 
 #
 class Sentence(models.Model):
-    id = models.AutoField(primary_key=True)
+    # id = models.AutoField(primary_key=True)
     sentenceJV = models.CharField(max_length=100)
     sentenceVN = models.CharField(max_length=100)
     style = models.CharField(max_length=100)
     topic = models.CharField(max_length=100)
+    # stt = models.AutoField
     image = models.ImageField(upload_to='uploads/', blank=True, null=True)
     paragraph = models.ForeignKey(Paragraph, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.sentenceVN
     
-    def save(self, *args, **kwargs):
-        if not self.id:
-            max_id = Sentence.objects.aggregate(models.Max('id'))['id__max']
-            if(max_id is None):
-                max_id = 0
-            self.id = max_id + 1
-        super().save(*args, **kwargs)
+    # def save(self, *args, **kwargs):
+    #     if not self.id:
+    #         listsen = Sentence.objects.                                                                                                                                                                                                                         
+
+    #         max_id = Sentence.objects.aggregate(models.Max('id'))['id__max']
+    #         if(max_id is None):
+    #             max_id = 0
+    #         self.id = max_id + 1
+    #     super().save(*args, **kwargs)
 
     def getImage(self):
         if(self.image):
