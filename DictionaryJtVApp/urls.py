@@ -7,4 +7,5 @@ router = DefaultRouter()
 router.register('sentence_list', views.SentenceViewSet, basename='sentence_list')
 
 
+
 urlpatterns = router.urls

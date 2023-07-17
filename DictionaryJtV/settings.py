@@ -63,7 +63,10 @@ MIDDLEWARE = [
 ]
 
 CORS_ORIGIN_ALLOW_ALL = True
+<<<<<<< HEAD
+=======
 
+>>>>>>> 5e6e8004c8fc4de1ab044abc72b2feb6a01b4326
 ROOT_URLCONF = 'DictionaryJtV.urls'
 
 TEMPLATES = [
