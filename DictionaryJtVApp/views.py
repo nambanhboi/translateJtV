@@ -27,3 +27,30 @@ class SentenceViewSet(viewsets.ModelViewSet):
     filteret_fields = ('sentenceJV', 'sentenceVN', 'style', 'topic')
     #các trường tìm kiếm
     search_fields = ('sentenceJV', 'sentenceVN', 'style', 'topic')
+
+# def register(request):
+#     form = CreateUserForm()
+#     if request.method == "POST":
+#         form = CreateUserForm(request.POST)
+#         if form.is_valid():
+#             form.save()
+#             return redirect('/')
+#     context = {'form' : form}
+#     return HttpResponse(request, '/register', context)  
+
+# def loginPage(request):
+#     if request.method == "POST":
+#         username = request.POST.get('username')
+#         password = request.POST.get('password')
+#         user = authenticate(request, username = username, password = password )
+#         if user is not None:
+#             login(request, user)
+#             return redirect('home')
+#         else:
+#             messages.info(request, 'Tên người dùng và mật khẩu không đúng!')
+#     context = {}
+#     return render(request, '/login', context)  
+
+def logoutPage(request):
+    logout(request)
+    return redirect('loginPage')
