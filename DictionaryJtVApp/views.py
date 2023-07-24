@@ -1,14 +1,17 @@
 from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse
-from rest_framework import filters, viewsets
+from rest_framework import filters, viewsets,status
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes, authentication_classes
 from django_filters.rest_framework import DjangoFilterBackend
 import json
 from django.core import serializers
 from .models import Sentence
 from .serializers import SentenceSeializer
+from rest_framework.permissions import IsAuthenticated
+from django.contrib.auth.models import User
+from django.contrib.auth import authenticate
 # Create your views here.
 
 #tạo ra 1 clas chứa tất cả phương thức get, put, pót, delete, filter
@@ -23,30 +26,28 @@ class SentenceViewSet(viewsets.ModelViewSet):
     filteret_fields = ('sentenceJV', 'sentenceVN', 'style', 'topic')
     #các trường tìm kiếm
     search_fields = ('sentenceJV', 'sentenceVN', 'style', 'topic')
+@api_view(['GET'])
+@authentication_classes([])
+@permission_classes([IsAuthenticated])
+def get_username(request):
+    user = request.user
+    return Response({'username':user.username})
 
-# def register(request):
-#     form = CreateUserForm()
-#     if request.method == "POST":
-#         form = CreateUserForm(request.POST)
-#         if form.is_valid():
-#             form.save()
-#             return redirect('/')
-#     context = {'form' : form}
-#     return HttpResponse(request, '/register', context)  
+@api_view(['POST'])
+def login(request):
+    # Xử lý đăng nhập và kiểm tra thông tin người dùng
+    # Sau khi xác thực thành công, lấy thông tin người dùng
+    username = request.data.get('username')
+    password = request.data.get('password')
 
-# def loginPage(request):
-#     if request.method == "POST":
-#         username = request.POST.get('username')
-#         password = request.POST.get('password')
-#         user = authenticate(request, username = username, password = password )
-#         if user is not None:
-#             login(request, user)
-#             return redirect('home')
-#         else:
-#             messages.info(request, 'Tên người dùng và mật khẩu không đúng!')
-#     context = {}
-#     return render(request, '/login', context)  
-
-def logoutPage(request):
-    logout(request)
-    return redirect('loginPage')
+    # Xác thực người dùng bằng cách sử dụng authenticate từ Django
+    user = authenticate(username=username, password=password)
+    if user is not None:
+        # Tạo một đối tượng JSON chứa thông tin người dùng, bao gồm cả 'username'
+        user_data = {
+            'username': user.username,
+            # Bổ sung các thông tin khác của người dùng nếu cần
+        }
+        return Response(user_data, status=status.HTTP_200_OK)
+    else:
+        return Response({'message': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
