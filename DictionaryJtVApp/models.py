@@ -12,7 +12,6 @@ class Users(models.Model):
         return self.username
 
 class Paragraph(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4)
     name = models.CharField(max_length=100)
 
     def __str__(self):
