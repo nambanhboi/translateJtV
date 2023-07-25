@@ -1,15 +1,69 @@
 from django.db import models
 import uuid
-from django.contrib.auth.models import User
+from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 # Create your models here.
 #doan van
-class Users(models.Model):
-    name = models.CharField(max_length=100)
-    nameuser = models.CharField(max_length=100)
-    email = models.EmailField(unique=True)
+# class Users(models.Model):
+#     name = models.CharField(max_length=100)
+#     username = models.CharField(max_length=100)
+#     email = models.EmailField(unique=True)
+#     password = models.CharField(max_length=100)
+#     def __str__(self):
+#         return self.username
+
+class CustomerManager(BaseUserManager):
+    def create_user(self, username, password=None, **extra_fields):
+        if not username:
+            raise ValueError("Tên người dùng là bắt buộc")
+
+        user = self.model(username=username, **extra_fields)
+        user.set_password(password)  # Mã hóa mật khẩu
+        user.save(using=self._db)
+        return user
+
+    def create_superuser(self, username, password=None, **extra_fields):
+        extra_fields.setdefault('is_staff', True)
+        extra_fields.setdefault('is_superuser', True)
+
+        if extra_fields.get('is_staff') is not True:
+            raise ValueError('Superuser must have is_staff=True.')
+        if extra_fields.get('is_superuser') is not True:
+            raise ValueError('Superuser must have is_superuser=True.')
+
+        return self.create_user(username, password, **extra_fields)
+
+class CustomerUser(AbstractBaseUser, PermissionsMixin):
+    username = models.CharField(max_length=20, unique=True)  # Thêm ràng buộc duy nhất
     password = models.CharField(max_length=100)
+    is_active = models.BooleanField(default=True)
+    is_staff = models.BooleanField(default=False)  # Mặc định là False
+
+    objects = CustomerManager()
+
+    USERNAME_FIELD = 'username'
+    REQUIRED_FIELDS = []
+
     def __str__(self):
         return self.username
+    class Meta:
+        # Khắc phục xung đột related_name
+        # Đổi 'groups' và 'user_permissions' thành 'custom_groups' và 'custom_user_permissions'
+        # Bạn có thể đặt tên related_name khác tùy ý
+        permissions = (("custom_groups", "Custom groups"), ("custom_user_permissions", "Custom user permissions"))
+    groups = models.ManyToManyField(
+        'auth.Group',
+        related_name='custom_user_set',
+        related_query_name='custom_user',
+        blank=True,
+    )
+
+    user_permissions = models.ManyToManyField(
+        'auth.Permission',
+        related_name='custom_user_set',
+        related_query_name='custom_user',
+        blank=True,
+    )
+    
 
 class Paragraph(models.Model):
     name = models.CharField(max_length=100)
@@ -48,17 +102,15 @@ class Sentence(models.Model):
 
 #dong gop cau moi
 class Report(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4)
     typeName = models.CharField(max_length=100)
     description = models.TextField(max_length=500)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(CustomerUser, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.typeName
     
 class Contribute(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(CustomerUser, on_delete=models.CASCADE)
     sentenceJv = models.CharField(max_length=100)
     sentenceVn = models.CharField(max_length=100)
 
@@ -66,7 +118,6 @@ class Contribute(models.Model):
         return str(self.id)
 
 class Comment(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(CustomerUser, on_delete=models.CASCADE)
     sentence = models.ForeignKey(Sentence, on_delete=models.CASCADE)
     description = models.TextField(max_length=500)
