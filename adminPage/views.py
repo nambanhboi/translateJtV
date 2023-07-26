@@ -9,18 +9,15 @@ from DictionaryJtVApp.models import Sentence, Paragraph
 # Create your views here.
 
 class SentenceViewSet(viewsets.ModelViewSet):
-    queryset = Sentence.objects.all()
     serializer_class = SentenceSerializer
-    filter_backends = [
-        DjangoFilterBackend,
-        filters.SearchFilter,
-        filters.OrderingFilter
-    ]
-    filteret_fields = ('sentenceJV', 'sentenceVN', 'style', 'topic')
-    #các trường tìm kiếm
-    search_fields = ('sentenceJV', 'sentenceVN', 'style', 'topic')
-
+    def get_queryset(self):
+        paragraph_id = self.kwargs.get('paragraph_id')
+        if paragraph_id:
+            return Sentence.objects.filter(paragraph__id=paragraph_id)
+        return Sentence.objects.all()
 class ParagraphViewSet(viewsets.ModelViewSet):
     queryset = Paragraph.objects.all()
     serializer_class = ParagraphSerializer
-    
+
+
+   
