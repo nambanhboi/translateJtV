@@ -3,13 +3,6 @@ import uuid
 from django.contrib.auth.models import User
 # Create your models here.
 #doan van
-class Users(models.Model):
-    name = models.CharField(max_length=100)
-    nameuser = models.CharField(max_length=100)
-    email = models.EmailField(unique=True)
-    password = models.CharField(max_length=100)
-    def __str__(self):
-        return self.username
 
 class Paragraph(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4)

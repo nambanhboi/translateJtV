@@ -5,6 +5,10 @@ from . import views
 router = DefaultRouter()
 #định nghĩa các router
 router.register('sentence_list', views.SentenceViewSet, basename='sentence_list')
+router.register('comment', views.CommentViewSet, basename='comment')
+router.register('user', views.UserViewSet, basename='user')
+
+
 
 
 
