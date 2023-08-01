@@ -3,18 +3,21 @@ from django.http import HttpResponse, JsonResponse
 from rest_framework import filters, viewsets,status, generics
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.decorators import api_view, permission_classes, authentication_classes
+from rest_framework.decorators import api_view
 from django_filters.rest_framework import DjangoFilterBackend
+from .models import Sentence,Comment, Report, Contribute,CustomerUser
+from .serializers import UserSerializer,SentenceSeializer,CommentSeializer, reportSeializer,ContributetSeializer,CustomerUserSerializer, CustomerUserLoginSerializer
+from rest_framework.authtoken.models import Token
+from django.contrib.auth.models import User
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.authtoken.serializers import AuthTokenSerializer
+from knox.auth import AuthToken
+
 import json
 from django.core import serializers
-from .models import Sentence, Report, Contribute
-from .serializers import SentenceSeializer, reportSeializer,ContributetSeializer,CustomerUserSerializer, CustomerUserLoginSerializer
 # from django.views.decorators.http import require_GET
-from .models import Sentence, CustomerUser
 from rest_framework.permissions import IsAuthenticated
-from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
-from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
 from django.contrib.auth.hashers import make_password
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
@@ -33,6 +36,15 @@ class SentenceViewSet(viewsets.ModelViewSet):
     filteret_fields = ('sentenceJV', 'sentenceVN', 'style', 'topic')
     #các trường tìm kiếm
     search_fields = ('sentenceJV', 'sentenceVN', 'style', 'topic')
+@api_view(['GET'])
+@authentication_classes([])
+@permission_classes([IsAuthenticated])
+def get_username(request):
+    user = request.user
+    return Response({'username':user.username})
+
+class CommentViewSet(viewsets.ModelViewSet):
+    queryset = Comment.objects.all()
 
 class ReportViewSet(viewsets.ModelViewSet):
     queryset = Report.objects.all()
@@ -43,27 +55,34 @@ class ReportViewSet(viewsets.ModelViewSet):
 class ContributeViewSet(viewsets.ModelViewSet):
     queryset = Contribute.objects.all()
     serializer_class = ContributetSeializer
-@api_view(['GET'])
-@authentication_classes([])
-@permission_classes([IsAuthenticated])
-def get_username(request):
-    user = request.user
-    return Response({'username':user.username})
+    
+@api_view(['POST'])
+def login_api(request):
+    serializer = AuthTokenSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    user = serializer.validated_data['user']
+    token = AuthToken.objects.create(user)
+    return Response({
+        'user':{
+            'id' : user.id,
+            'username': user.username,
+        },
+        'token': token.key, 
+    })
 
 @api_view(['POST'])
-def login(request):
-    # Xử lý đăng nhập và kiểm tra thông tin người dùng
-    # Sau khi xác thực thành công, lấy thông tin người dùng
-    username = request.data.get('username')
-    password = request.data.get('password')
-
-    # Xác thực người dùng bằng cách sử dụng authenticate từ Django
-    user = authenticate(username=username, password=password)
-    if user is not None:
-        # Tạo một đối tượng JSON chứa thông tin người dùng, bao gồm cả 'username'
-        user_data = {
-            'username': user.username,
-            # Bổ sung các thông tin khác của người dùng nếu cần
+def signup(request):
+    serializer = UserSerializer(data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+        user = User.objects.get(username=request.data['username'])
+        user.set_password(request.data['password'])
+        user.save()
+        # Tạo token cho người dùng vừa đăng ký
+        refresh = RefreshToken.for_user(user)
+        token = {
+            'refresh': str(refresh),
+            'access': str(refresh.access_token),
         }
         return Response(user_data, status=status.HTTP_200_OK)
     else:
