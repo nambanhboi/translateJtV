@@ -37,6 +37,8 @@ class SentenceViewSet(viewsets.ModelViewSet):
 class ReportViewSet(viewsets.ModelViewSet):
     queryset = Report.objects.all()
     serializer_class = reportSeializer
+    # def requestUser(request):
+    #     request.user 
 
 class ContributeViewSet(viewsets.ModelViewSet):
     queryset = Contribute.objects.all()
