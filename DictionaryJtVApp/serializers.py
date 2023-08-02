@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Sentence,Report,Contribute,CustomerUser
+from .models import Sentence,Report,Contribute
 from .models import User
 from .models import Comment
 
@@ -22,23 +22,23 @@ class CommentSeializer(serializers.ModelSerializer):
 #         model = CustomerUser
 #         fields = ('id', 'username', 'is_active', 'is_staff')
 
-class CustomerUserSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = CustomerUser
-        fields = ['username', 'password', 'is_active', 'is_staff']
-        extra_kwargs = {'password': {'write_only': True}}
+# class CustomerUserSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = User 
+#         fields = ['username', 'password', 'is_active', 'is_staff']
+#         extra_kwargs = {'password': {'write_only': True}}
 
-    def create(self, validated_data):
-        # Tránh lưu trường password trực tiếp vào model
-        password = validated_data.pop('password')
-        user = CustomerUser(**validated_data)
-        user.set_password(password)
-        user.save()
-        return user
+#     def create(self, validated_data):
+#         # Tránh lưu trường password trực tiếp vào model
+#         password = validated_data.pop('password')
+#         user = CustomerUser(**validated_data)
+#         user.set_password(password)
+#         user.save()
+#         return user
 
-class CustomerUserLoginSerializer(serializers.Serializer):
-    username = serializers.CharField(required=True)
-    password = serializers.CharField(required=True)
+# class CustomerUserLoginSerializer(serializers.Serializer):
+#     username = serializers.CharField(required=True)
+#     password = serializers.CharField(required=True)
 
 class reportSeializer(serializers.ModelSerializer):
     class Meta:

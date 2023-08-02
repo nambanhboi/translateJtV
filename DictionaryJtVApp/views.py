@@ -5,8 +5,8 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from django_filters.rest_framework import DjangoFilterBackend
-from .models import Sentence,Comment, Report, Contribute,CustomerUser
-from .serializers import UserSerializer,SentenceSeializer,CommentSeializer, reportSeializer,ContributetSeializer,CustomerUserSerializer, CustomerUserLoginSerializer
+from .models import Sentence,Comment, Report, Contribute
+from .serializers import UserSerializer,SentenceSeializer,CommentSeializer, reportSeializer,ContributetSeializer
 from rest_framework.authtoken.models import Token
 from django.contrib.auth.models import User
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -37,8 +37,8 @@ class SentenceViewSet(viewsets.ModelViewSet):
     #các trường tìm kiếm
     search_fields = ('sentenceJV', 'sentenceVN', 'style', 'topic')
 @api_view(['GET'])
-@authentication_classes([])
-@permission_classes([IsAuthenticated])
+# @authentication_classes([])
+# @permission_classes([IsAuthenticated])
 def get_username(request):
     user = request.user
     return Response({'username':user.username})
@@ -88,6 +88,15 @@ def signup(request):
     else:
         return Response({'message': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
     
+
+class UserViewSet(viewsets.ModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    filter_backends = [
+        DjangoFilterBackend,
+        filters.SearchFilter,
+        filters.OrderingFilter
+    ]
 # #register
 # class CustomerUserCreate(APIView):
 #     def post(self, request, format='json'):
@@ -123,30 +132,30 @@ def signup(request):
 #             return Response({'detail': 'No active account found with the given credentials'}, status=status.HTTP_401_UNAUTHORIZED)
 
 
-class CustomerUserCreate(generics.CreateAPIView):
-    queryset = CustomerUser.objects.all()
-    serializer_class = CustomerUserSerializer
+# class CustomerUserCreate(generics.CreateAPIView):
+#     queryset = CustomerUser.objects.all()
+#     serializer_class = CustomerUserSerializer
 
-class CustomTokenObtainPairView(APIView):
-    def post(self, request):
-        serializer = CustomerUserLoginSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        user = authenticate(
-            request,
-            username=serializer.validated_data['username'],
-            password=serializer.validated_data['password']
-        )
-        if user:
-            refresh = RefreshToken.for_user(user)
-            data = {
-                'refresh_token': str(refresh),
-                'access_token': str(refresh.access_token),
-                 'access_expires': int(settings.SIMPLE_JWT['ACCESS_TOKEN_LIFETIME'].total_seconds()),
-                'refresh_expires': int(settings.SIMPLE_JWT['REFRESH_TOKEN_LIFETIME'].total_seconds())
-            }
-            return Response(data, status=status.HTTP_200_OK)
+# class CustomTokenObtainPairView(APIView):
+#     def post(self, request):
+#         serializer = CustomerUserLoginSerializer(data=request.data)
+#         serializer.is_valid(raise_exception=True)
+#         user = authenticate(
+#             request,
+#             username=serializer.validated_data['username'],
+#             password=serializer.validated_data['password']
+#         )
+#         if user:
+#             refresh = RefreshToken.for_user(user)
+#             data = {
+#                 'refresh_token': str(refresh),
+#                 'access_token': str(refresh.access_token),
+#                  'access_expires': int(settings.SIMPLE_JWT['ACCESS_TOKEN_LIFETIME'].total_seconds()),
+#                 'refresh_expires': int(settings.SIMPLE_JWT['REFRESH_TOKEN_LIFETIME'].total_seconds())
+#             }
+#             return Response(data, status=status.HTTP_200_OK)
 
-        return Response({
-            'error_message': 'username or password is incorrect!',
-            'error_code': 400
-        }, status=status.HTTP_400_BAD_REQUEST)
+#         return Response({
+#             'error_message': 'username or password is incorrect!',
+#             'error_code': 400
+#         }, status=status.HTTP_400_BAD_REQUEST)
