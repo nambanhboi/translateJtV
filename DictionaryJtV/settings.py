@@ -47,10 +47,7 @@ INSTALLED_APPS = [
     'djoser',
     'DictionaryJtVApp',
     'adminPage',
-<<<<<<< HEAD
-=======
     'rest_framework_simplejwt'
->>>>>>> ce2dde03f829450266422e67b2d8e86c5aa7e31b
 ]
 
 REST_FRAMEWORK = {
@@ -159,12 +156,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media/'
-<<<<<<< HEAD
-APPEND_SLASH=False
-
-REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES':('knox.auth.TokenAuthentication')
-=======
 
 AUTH_USER_MODEL = 'DictionaryJtVApp.CustomerUser'
 
@@ -190,5 +181,4 @@ SIMPLE_JWT = {
     'SLIDING_TOKEN_REFRESH_EXP_CLAIM': 'refresh_exp',
     'SLIDING_TOKEN_LIFETIME': timedelta(minutes=5),
     'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=1),
->>>>>>> ce2dde03f829450266422e67b2d8e86c5aa7e31b
 }
