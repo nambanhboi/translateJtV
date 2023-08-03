@@ -57,46 +57,69 @@ class ContributeViewSet(viewsets.ModelViewSet):
     serializer_class = ContributetSeializer
     
 @api_view(['POST'])
-def login_api(request):
-    serializer = AuthTokenSerializer(data=request.data)
-    serializer.is_valid(raise_exception=True)
-    user = serializer.validated_data['user']
-    token = AuthToken.objects.create(user)
-    return Response({
-        'user':{
-            'id' : user.id,
-            'username': user.username,
-        },
-        'token': token.key, 
-    })
-
-@api_view(['POST'])
 def signup(request):
     serializer = UserSerializer(data=request.data)
     if serializer.is_valid():
-        serializer.save()
-        user = User.objects.get(username=request.data['username'])
+        user = serializer.save()
         user.set_password(request.data['password'])
         user.save()
+
         # Tạo token cho người dùng vừa đăng ký
         refresh = RefreshToken.for_user(user)
         token = {
             'refresh': str(refresh),
             'access': str(refresh.access_token),
         }
+
+        # Trả về thông tin người dùng và token
+        user_data = {
+            'user': {
+                'id': user.id,
+                'username': user.username,
+            },
+            'token': token,
+        }
+        return Response(user_data, status=status.HTTP_201_CREATED)  # HTTP 201 CREATED cho người dùng mới
+    else:
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)  # HTTP 400 BAD REQUEST nếu thông tin đăng ký không hợp lệ
+
+@api_view(['POST'])
+def login_api(request):
+    username = request.data.get('username')
+    password = request.data.get('password')
+
+    user = authenticate(username=username, password=password)
+
+    if user is not None:
+        # Xác thực thành công, tạo token cho người dùng
+        refresh = RefreshToken.for_user(user)
+        token = {
+            'refresh': str(refresh),
+            'access': str(refresh.access_token),
+        }
+
+        # Trả về thông tin người dùng và token
+        user_data = {
+            'user': {
+                'id': user.id,
+                'username': user.username,
+            },
+            'token': token,
+        }
         return Response(user_data, status=status.HTTP_200_OK)
     else:
+        # Xác thực thất bại, trả về thông báo lỗi
         return Response({'message': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
     
 
-class UserViewSet(viewsets.ModelViewSet):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
-    filter_backends = [
-        DjangoFilterBackend,
-        filters.SearchFilter,
-        filters.OrderingFilter
-    ]
+# class UserViewSet(viewsets.ModelViewSet):
+#     queryset = User.objects.all()
+#     serializer_class = UserSerializer
+#     filter_backends = [
+#         DjangoFilterBackend,
+#         filters.SearchFilter,
+#         filters.OrderingFilter
+#     ]
 # #register
 # class CustomerUserCreate(APIView):
 #     def post(self, request, format='json'):
