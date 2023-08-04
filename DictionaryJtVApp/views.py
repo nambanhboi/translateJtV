@@ -5,7 +5,8 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from django_filters.rest_framework import DjangoFilterBackend
-from .serializers import SentenceSeializer
+from .models import Sentence,Comment, Report, Contribute
+from .serializers import UserSerializer,SentenceSeializer,CommentSeializer, reportSeializer,ContributetSeializer
 from rest_framework.authtoken.models import Token
 from django.contrib.auth.models import User
 from rest_framework.authtoken.serializers import AuthTokenSerializer
@@ -13,11 +14,9 @@ from knox.auth import AuthToken
 
 import json
 from django.core import serializers
-from .models import Sentence, Comment
-from .serializers import SentenceSeializer
+# from django.views.decorators.http import require_GET
 from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth import authenticate
-from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
 from django.contrib.auth.hashers import make_password
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
@@ -36,24 +35,25 @@ class SentenceViewSet(viewsets.ModelViewSet):
     filteret_fields = ('sentenceJV', 'sentenceVN', 'style', 'topic')
     #các trường tìm kiếm
     search_fields = ('sentenceJV', 'sentenceVN', 'style', 'topic')
+@api_view(['GET'])
+# @authentication_classes([])
+# @permission_classes([IsAuthenticated])
+def get_username(request):
+    user = request.user
+    return Response({'username':user.username})
 
-# class CommentViewSet(viewsets.ModelViewSet):
-#     queryset = Comment.objects.all()
-#     serializer_class = CommentSeializer
-#     filter_backends = [
-#         DjangoFilterBackend,
-#         filters.SearchFilter,
-#         filters.OrderingFilter
-#     ]
+class CommentViewSet(viewsets.ModelViewSet):
+    queryset = Comment.objects.all()
 
-class UserViewSet(viewsets.ModelViewSet):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
-    filter_backends = [
-        DjangoFilterBackend,
-        filters.SearchFilter,
-        filters.OrderingFilter
-    ]
+class ReportViewSet(viewsets.ModelViewSet):
+    queryset = Report.objects.all()
+    serializer_class = reportSeializer
+    # def requestUser(request):
+    #     request.user 
+
+class ContributeViewSet(viewsets.ModelViewSet):
+    queryset = Contribute.objects.all()
+    serializer_class = ContributetSeializer
     
 @api_view(['POST'])
 def login_api(request):
@@ -87,6 +87,15 @@ def signup(request):
     else:
         return Response({'message': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
     
+
+class UserViewSet(viewsets.ModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    filter_backends = [
+        DjangoFilterBackend,
+        filters.SearchFilter,
+        filters.OrderingFilter
+    ]
 # #register
 # class CustomerUserCreate(APIView):
 #     def post(self, request, format='json'):

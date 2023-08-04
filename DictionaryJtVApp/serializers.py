@@ -1,11 +1,22 @@
 from rest_framework import serializers
-from .models import Sentence, CustomerUser
+from .models import Sentence,Report,Contribute
+from .models import User
+from .models import Comment
 
 class SentenceSeializer(serializers.ModelSerializer):
     class Meta:
         model = Sentence
         fields = '__all__'
 
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id', 'username','password']
+
+class CommentSeializer(serializers.ModelSerializer):
+    class Meta:
+        model = Comment
+        fields = '__all__'
 # class CustomerUserSerializer(serializers.ModelSerializer):
 #     class Meta:
 #         model = CustomerUser
@@ -13,7 +24,7 @@ class SentenceSeializer(serializers.ModelSerializer):
 
 # class CustomerUserSerializer(serializers.ModelSerializer):
 #     class Meta:
-#         model = CustomerUser
+#         model = User 
 #         fields = ['username', 'password', 'is_active', 'is_staff']
 #         extra_kwargs = {'password': {'write_only': True}}
 
@@ -28,3 +39,13 @@ class SentenceSeializer(serializers.ModelSerializer):
 # class CustomerUserLoginSerializer(serializers.Serializer):
 #     username = serializers.CharField(required=True)
 #     password = serializers.CharField(required=True)
+
+class reportSeializer(serializers.ModelSerializer):
+    class Meta:
+        model = Report
+        fields = '__all__'
+
+class ContributetSeializer(serializers.ModelSerializer):
+    class Meta:
+        model = Contribute
+        fields = '__all__'
