@@ -103,7 +103,6 @@ class Sentence(models.Model):
 #dong gop cau moi
 class Report(models.Model):
     typeName = models.CharField(max_length=100)
-    description = models.TextField(max_length=500)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
 
     def __str__(self):

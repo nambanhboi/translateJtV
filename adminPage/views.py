@@ -15,6 +15,7 @@ class SentenceViewSet(viewsets.ModelViewSet):
         if paragraph_id:
             return Sentence.objects.filter(paragraph__id=paragraph_id)
         return Sentence.objects.all()
+    
 class ParagraphViewSet(viewsets.ModelViewSet):
     queryset = Paragraph.objects.all()
     serializer_class = ParagraphSerializer
