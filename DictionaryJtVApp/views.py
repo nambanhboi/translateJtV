@@ -9,9 +9,7 @@ from .models import Sentence,Comment, Report, Contribute
 from .serializers import UserSerializer,SentenceSeializer,CommentSeializer, reportSeializer,ContributetSeializer
 from rest_framework.authtoken.models import Token
 from django.contrib.auth.models import User
-from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.authtoken.serializers import AuthTokenSerializer
-from knox.auth import AuthToken
 
 import json
 from django.core import serializers
@@ -22,6 +20,8 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 from django.contrib.auth.hashers import make_password
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from django.conf import settings
+from rest_framework_simplejwt.tokens import RefreshToken
+from django.views.decorators.csrf import csrf_exempt
 # Create your views here.
 
 #tạo ra 1 clas chứa tất cả phương thức get, put, pót, delete, filter
@@ -49,24 +49,43 @@ class CommentViewSet(viewsets.ModelViewSet):
 class ReportViewSet(viewsets.ModelViewSet):
     queryset = Report.objects.all()
     serializer_class = reportSeializer
+    permission_classes = [IsAuthenticated]
 
-    def post(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save(user=request.user)
-        headers = self.get_success_headers(serializer.data)
-        return Response({'message': 'Report created successfully'}, status=status.HTTP_201_CREATED, headers=headers)
-    # def requestUser(request):
-    #     request.user 
+
+    # def post(self, request, *args, **kwargs):
+    #     serializer = self.get_serializer(data=request.data)
+    #     print(request.data)
+    #     print(request.user)
+    #     serializer.is_valid(raise_exception=True)
+    #     serializer.save(user=request.user)
+    #     headers = self.get_success_headers(serializer.data)
+    #     return Response({'message': 'Report created successfully'}, status=status.HTTP_201_CREATED, headers=headers)
 
 class ContributeViewSet(viewsets.ModelViewSet):
     queryset = Contribute.objects.all()
     serializer_class = ContributetSeializer
-    
+
+@api_view(['POSt'])
+@csrf_exempt
+def report(request):
+    serializer = reportSeializer(data=request.data)
+    print(request.user)
+    print(request.data)
+    if serializer.is_valid():
+        serializer.save(user=request.user)  # Tự động gán người dùng hiện tại
+        return Response({'message': 'Report created successfully'}, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@csrf_exempt
 @api_view(['POST'])
 def signup(request):
     serializer = UserSerializer(data=request.data)
     if serializer.is_valid():
+        username = serializer.validated_data['username']
+        if User.objects.filter(username=username).exists():
+            # Tên người dùng đã tồn tại, trả về thông báo lỗi
+            return Response({'message': 'Tên người dùng đã tồn tại'}, status=status.HTTP_409_CONFLICT)
+
         user = serializer.save()
         user.set_password(request.data['password'])
         user.save()
@@ -89,7 +108,8 @@ def signup(request):
         return Response(user_data, status=status.HTTP_201_CREATED)  # HTTP 201 CREATED cho người dùng mới
     else:
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)  # HTTP 400 BAD REQUEST nếu thông tin đăng ký không hợp lệ
-
+    
+@csrf_exempt
 @api_view(['POST'])
 def login_api(request):
     username = request.data.get('username')
@@ -118,74 +138,3 @@ def login_api(request):
         # Xác thực thất bại, trả về thông báo lỗi
         return Response({'message': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
     
-
-# class UserViewSet(viewsets.ModelViewSet):
-#     queryset = User.objects.all()
-#     serializer_class = UserSerializer
-#     filter_backends = [
-#         DjangoFilterBackend,
-#         filters.SearchFilter,
-#         filters.OrderingFilter
-#     ]
-# #register
-# class CustomerUserCreate(APIView):
-#     def post(self, request, format='json'):
-#         serializer = CustomerUserSerializer(data=request.data)
-
-#         if serializer.is_valid():
-#             user = serializer.save()
-#             if user:
-#                 refresh = RefreshToken.for_user(user)
-#                 response_data = {
-#                     'refresh': str(refresh),
-#                     'access': str(refresh.access_token)
-#                 }
-#                 return Response(response_data, status=status.HTTP_201_CREATED)
-#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
-# #login
-# class CustomTokenObtainPairView(APIView):
-#     def post(self, request, *args, **kwargs):
-#         username = request.data.get('username')
-#         password = request.data.get('password')
-
-#         user = authenticate(username=username, password=password)
-
-#         if user is not None:
-#             refresh = RefreshToken.for_user(user)
-#             response_data = {
-#                 'refresh': str(refresh),
-#                 'access': str(refresh.access_token)
-#             }
-#             return Response(response_data, status=status.HTTP_200_OK)
-#         else:
-#             return Response({'detail': 'No active account found with the given credentials'}, status=status.HTTP_401_UNAUTHORIZED)
-
-
-# class CustomerUserCreate(generics.CreateAPIView):
-#     queryset = CustomerUser.objects.all()
-#     serializer_class = CustomerUserSerializer
-
-# class CustomTokenObtainPairView(APIView):
-#     def post(self, request):
-#         serializer = CustomerUserLoginSerializer(data=request.data)
-#         serializer.is_valid(raise_exception=True)
-#         user = authenticate(
-#             request,
-#             username=serializer.validated_data['username'],
-#             password=serializer.validated_data['password']
-#         )
-#         if user:
-#             refresh = RefreshToken.for_user(user)
-#             data = {
-#                 'refresh_token': str(refresh),
-#                 'access_token': str(refresh.access_token),
-#                  'access_expires': int(settings.SIMPLE_JWT['ACCESS_TOKEN_LIFETIME'].total_seconds()),
-#                 'refresh_expires': int(settings.SIMPLE_JWT['REFRESH_TOKEN_LIFETIME'].total_seconds())
-#             }
-#             return Response(data, status=status.HTTP_200_OK)
-
-#         return Response({
-#             'error_message': 'username or password is incorrect!',
-#             'error_code': 400
-#         }, status=status.HTTP_400_BAD_REQUEST)
