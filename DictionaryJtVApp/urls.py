@@ -4,15 +4,15 @@ from . import views
 
 
 
-urlpatterns = [
-    #path('sentence_list/', views.SentenceViewSet.as_view(), name='sentence_list'),
-    path('signup', views.signup, name='signup'),
-    path('login', views.login_api, name='login'),
-    path('sentence_list', views.SentenceViewSet.as_view({'get': 'list'}), name='sentence_list'),
-    path('Report', views.ReportViewSet.as_view({'get': 'list'}), name='Report'),
-    path('Contribute', views.ContributeViewSet.as_view({'get': 'list'}), name='Contribute'),
+# urlpatterns = [
+#     #path('sentence_list/', views.SentenceViewSet.as_view(), name='sentence_list'),
+#     path('signup', views.signup, name='signup'),
+#     path('login', views.login_api, name='login'),
+#     path('sentence_list', views.SentenceViewSet.as_view({'get': 'list'}), name='sentence_list'),
+#     path('Report', views.ReportViewSet.as_view({'get': 'list'}), name='Report'),
+#     path('Contribute', views.ContributeViewSet.as_view({'get': 'list'}), name='Contribute'),
 
-] 
+# ] 
 
 # # #định nghĩa các router
 # router.register('sentence_list', views.SentenceViewSet, basename='sentence_list')
@@ -32,7 +32,7 @@ urlpatterns = [
 # urlpatterns = router.urls
 
 urlpatterns = [
-    path('sentence_list/', views.SentenceViewSet.as_view({'get': 'list'}), name='sentence_list'),
+    path('sentence_list', views.SentenceViewSet.as_view({'get': 'list'}), name='sentence_list'),
     path('signup', views.signup, name='signup'),
     path('login', views.login_api, name='login'),
     # path('', include(router.urls)),

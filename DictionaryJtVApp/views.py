@@ -6,7 +6,7 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from django_filters.rest_framework import DjangoFilterBackend
 from .models import Sentence,Comment, Report, Contribute
-from .serializers import UserSerializer,SentenceSeializer,CommentSeializer, reportSeializer,ContributetSeializer
+from .serializers import UserSerializer,SentenceSeializer, reportSeializer,ContributetSeializer
 from rest_framework.authtoken.models import Token
 from django.contrib.auth.models import User
 from rest_framework.authtoken.serializers import AuthTokenSerializer
@@ -65,14 +65,21 @@ class ContributeViewSet(viewsets.ModelViewSet):
     queryset = Contribute.objects.all()
     serializer_class = ContributetSeializer
 
-@api_view(['POSt'])
+# @api_view(['POSt'])
+# @csrf_exempt
+# def report(request):
+#     serializer = reportSeializer(data=request.data)
+#     if serializer.is_valid():
+#         serializer.save(user=request.user)  # Tự động gán người dùng hiện tại
+#         return Response({'message': 'Report created successfully'}, status=status.HTTP_201_CREATED)
+#     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['POST'])
 @csrf_exempt
 def report(request):
     serializer = reportSeializer(data=request.data)
-    print(request.user)
-    print(request.data)
     if serializer.is_valid():
-        serializer.save(user=request.user)  # Tự động gán người dùng hiện tại
+        serializer.save()
         return Response({'message': 'Report created successfully'}, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 

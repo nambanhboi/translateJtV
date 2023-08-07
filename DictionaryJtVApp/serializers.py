@@ -43,7 +43,7 @@ class CommentSeializer(serializers.ModelSerializer):
 class reportSeializer(serializers.ModelSerializer):
     class Meta:
         model = Report
-        fields = '__all__'
+        fields = ['id', 'typeName', 'user','sentence']
 
 class ContributetSeializer(serializers.ModelSerializer):
     class Meta:
