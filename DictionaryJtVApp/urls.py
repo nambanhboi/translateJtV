@@ -35,6 +35,6 @@ urlpatterns = [
     path('sentence_list', views.SentenceViewSet.as_view({'get': 'list'}), name='sentence_list'),
     path('signup', views.signup, name='signup'),
     path('login', views.login_api, name='login'),
-    # path('', include(router.urls)),
     path('report', views.report, name='report'),
+    path('contribute',views.contribute, name='contribute'),
 ]
