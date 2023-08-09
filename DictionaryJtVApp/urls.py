@@ -33,5 +33,9 @@ urlpatterns = [
     path('signup', views.signup, name='signup'),
     path('login', views.login_api, name='login'),
     path('report', views.report, name='report'),
+<<<<<<< HEAD
     path('comment', views.comment, name='comment'),
+=======
+    path('contribute',views.contribute, name='contribute'),
+>>>>>>> 6e3d38bbbf9c65ac3af2df0b0adef461daeb7167
 ]

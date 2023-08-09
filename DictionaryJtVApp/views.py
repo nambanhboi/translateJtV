@@ -65,6 +65,15 @@ def report(request):
         return Response({'message': 'Report created successfully'}, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+@api_view(['POST'])
+@csrf_exempt
+def contribute(request):
+    serializer = ContributetSeializer(data = request.data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response({'message': 'contribute created successfully'}, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 @csrf_exempt
 @api_view(['POST'])
 def signup(request):
