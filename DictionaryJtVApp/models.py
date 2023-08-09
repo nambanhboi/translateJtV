@@ -1,7 +1,6 @@
 from django.db import models
 import uuid
 from django.contrib.auth.models import User
-# Create your models here.
     
 
 class Paragraph(models.Model):
@@ -17,22 +16,11 @@ class Sentence(models.Model):
     sentenceVN = models.CharField(max_length=100)
     style = models.CharField(max_length=100)
     topic = models.CharField(max_length=100)
-    # stt = models.AutoField
     image = models.ImageField(upload_to='uploads/', blank=True, null=True)
     paragraph = models.ForeignKey(Paragraph, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.sentenceVN
-    
-    # def save(self, *args, **kwargs):
-    #     if not self.id:
-    #         listsen = Sentence.objects.                                                                                                                                                                                                                         
-
-    #         max_id = Sentence.objects.aggregate(models.Max('id'))['id__max']
-    #         if(max_id is None):
-    #             max_id = 0
-    #         self.id = max_id + 1
-    #     super().save(*args, **kwargs)
 
     def getImage(self):
         if(self.image):
@@ -41,6 +29,7 @@ class Sentence(models.Model):
 
 #dong gop cau moi
 class Report(models.Model):
+    sentence = models.ForeignKey(Sentence, on_delete=models.CASCADE, null=True)
     typeName = models.CharField(max_length=100)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
 

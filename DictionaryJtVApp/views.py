@@ -1,24 +1,14 @@
 from django.shortcuts import render
-from django.http import HttpResponse, JsonResponse
 from rest_framework import filters, viewsets,status, generics
-from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from django_filters.rest_framework import DjangoFilterBackend
 from .models import Sentence,Comment, Report, Contribute
-from .serializers import UserSerializer,SentenceSeializer,CommentSeializer, reportSeializer,ContributetSeializer
-from rest_framework.authtoken.models import Token
+from .serializers import UserSerializer,SentenceSeializer, reportSeializer,ContributetSeializer,CommentSeializer
 from django.contrib.auth.models import User
-from rest_framework.authtoken.serializers import AuthTokenSerializer
-
-import json
-from django.core import serializers
-# from django.views.decorators.http import require_GET
 from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth import authenticate
-from rest_framework_simplejwt.views import TokenObtainPairView
 from django.contrib.auth.hashers import make_password
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from django.conf import settings
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.views.decorators.csrf import csrf_exempt
@@ -33,7 +23,7 @@ class SentenceViewSet(viewsets.ModelViewSet):
         filters.SearchFilter,
         filters.OrderingFilter
     ]
-    filteret_fields = ('sentenceJV', 'sentenceVN', 'style', 'topic')
+    filteret_fields = ('id','sentenceJV', 'sentenceVN', 'style', 'topic')
     #các trường tìm kiếm
     search_fields = ('sentenceJV', 'sentenceVN', 'style', 'topic')
 @api_view(['GET'])
@@ -45,34 +35,33 @@ def get_username(request):
 
 class CommentViewSet(viewsets.ModelViewSet):
     queryset = Comment.objects.all()
+    serializer_class = reportSeializer
+    permission_classes = [IsAuthenticated]
 
 class ReportViewSet(viewsets.ModelViewSet):
     queryset = Report.objects.all()
     serializer_class = reportSeializer
     permission_classes = [IsAuthenticated]
 
-
-    # def post(self, request, *args, **kwargs):
-    #     serializer = self.get_serializer(data=request.data)
-    #     print(request.data)
-    #     print(request.user)
-    #     serializer.is_valid(raise_exception=True)
-    #     serializer.save(user=request.user)
-    #     headers = self.get_success_headers(serializer.data)
-    #     return Response({'message': 'Report created successfully'}, status=status.HTTP_201_CREATED, headers=headers)
-
 class ContributeViewSet(viewsets.ModelViewSet):
     queryset = Contribute.objects.all()
     serializer_class = ContributetSeializer
 
-@api_view(['POSt'])
+@api_view(['POST'])
+@csrf_exempt
+def comment(request):
+    serializer = CommentSeializer(data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response({'message': 'Comment created successfully'}, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['POST'])
 @csrf_exempt
 def report(request):
     serializer = reportSeializer(data=request.data)
-    print(request.user)
-    print(request.data)
     if serializer.is_valid():
-        serializer.save(user=request.user)  # Tự động gán người dùng hiện tại
+        serializer.save()
         return Response({'message': 'Report created successfully'}, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
