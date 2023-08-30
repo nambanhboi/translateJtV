@@ -135,4 +135,24 @@ def login_api(request):
     else:
         # Xác thực thất bại, trả về thông báo lỗi
         return Response({'message': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
-    
+@api_view(['GET'])  
+def ngucanh(request, sentenceId):
+    try:       
+        print(sentenceId)
+        sentenceById = Sentence.objects.get(id=sentenceId)
+        allSentenceByPara = list(Sentence.objects.filter(paragraph_id=sentenceById.paragraph.id))
+        sentenceIndex = allSentenceByPara.index(sentenceById)
+        print(len(allSentenceByPara))
+        if sentenceIndex == 0:
+            print(1)
+            sentenceList = allSentenceByPara[sentenceIndex:sentenceIndex+2]
+        elif sentenceIndex == len(allSentenceByPara)-1:
+            print(2)
+            sentenceList = allSentenceByPara[sentenceIndex-1:sentenceIndex+1]
+        else:
+            print(3)
+            sentenceList = allSentenceByPara[sentenceIndex-1:sentenceIndex+2]
+        sentenceList = [SentenceSeializer(instance=sen).data for sen in sentenceList]
+        return Response({"result": sentenceList})
+    except:
+        return Response({"error": "sentence not found"}, status=404)
