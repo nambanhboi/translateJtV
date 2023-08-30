@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from django_filters.rest_framework import DjangoFilterBackend
 from .models import Sentence,Comment, Report, Contribute
-from .serializers import UserSerializer,SentenceSeializer, reportSeializer,ContributetSeializer,CommentSeializer
+from .serializers import UserSerializer,SentenceSeializer, reportSeializer,CommentSerialvizer,ContributetSeializer
 from django.contrib.auth.models import User
 from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth import authenticate
@@ -27,15 +27,13 @@ class SentenceViewSet(viewsets.ModelViewSet):
     #các trường tìm kiếm
     search_fields = ('sentenceJV', 'sentenceVN', 'style', 'topic')
 @api_view(['GET'])
-# @authentication_classes([])
-# @permission_classes([IsAuthenticated])
 def get_username(request):
     user = request.user
     return Response({'username':user.username})
 
 class CommentViewSet(viewsets.ModelViewSet):
     queryset = Comment.objects.all()
-    serializer_class = reportSeializer
+    serializer_class = CommentSerialvizer
     permission_classes = [IsAuthenticated]
 
 class ReportViewSet(viewsets.ModelViewSet):
@@ -47,10 +45,11 @@ class ContributeViewSet(viewsets.ModelViewSet):
     queryset = Contribute.objects.all()
     serializer_class = ContributetSeializer
 
-@api_view(['POST'])
+@api_view(['POST','GET'])
 @csrf_exempt
 def comment(request):
-    serializer = CommentSeializer(data=request.data)
+    queryset = Comment.objects.all()
+    serializer = CommentSerialvizer(data=request.data)
     if serializer.is_valid():
         serializer.save()
         return Response({'message': 'Comment created successfully'}, status=status.HTTP_201_CREATED)
