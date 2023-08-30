@@ -13,7 +13,7 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = ['id', 'username','password']
 
-class CommentSeializer(serializers.ModelSerializer):
+class CommentSerialvizer(serializers.ModelSerializer):
     class Meta:
         model = Comment
         fields = '__all__'
